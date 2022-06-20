@@ -25,6 +25,7 @@
    6. [Look at](#look-at)
 
 ## Vector
+
 $$
     \vec{v} = (x, y, z, w) =
     \begin{bmatrix}
@@ -34,56 +35,72 @@ $$
         w \\
     \end{bmatrix}
 $$
+
 ### Dot
+
 $$
     \vec{a} = (x_a, y_a, z_a, 1) 
 $$
+
 $$
     \vec{b} = (x_b, y_b, z_b, 1)
 $$
+
 $$
     \vec{a} \cdot \vec{b} = |\vec{a}| |\vec{b}| \cos\theta =
     x_a x_b + y_a y_b + z_a z_b
 $$
+
 $$
     \vec{a} \cdot \vec{b} = \vec{b} \cdot \vec{a}
 $$
+
 $$
     \vec{a} \cdot (\vec{b} + \vec{c}) =
     \vec{a} \cdot \vec{b} + \vec{a} \cdot \vec{c}
 $$
+
 $$
     (\lambda\vec{a}) \cdot \vec{b} = \lambda(\vec{a} \cdot \vec{b}) =
     \vec{a} \cdot (\lambda\vec{b})
 $$
+
 ### Cross
+
 $$
     \vec{a} \times \vec{b} = (|\vec{a}| |\vec{b}| \sin\theta) \vec{n} =
     (y_a z_b - z_a y_b, z_a x_b - x_a z_b, x_a y_b - y_a x_b)
 $$
+
 $$
     \vec{a} \times (\vec{b} + \vec{c}) =
     \vec{a} \times \vec{b} + \vec{a} \times \vec{c}
 $$
+
 $$
     (\vec{a} + \vec{b}) \times \vec{c} =
     \vec{a} \times \vec{c} + \vec{b} \times \vec{c}
 $$
+
 $$
     (\lambda\vec{a}) \times \vec{b} =
     \lambda(\vec{a} \times \vec{b}) = \vec{a} \times (\lambda\vec{b})
 $$
+
 ### Interpolation
+
 $$
     {\rm Lerp} (\vec{a}, \vec{b}, t) =
     (1 - t) \vec{a} + t \vec{b}
     \qquad t \in [0, 1]
 $$
+
 $$
     {\rm NLerp} (\vec{a}, \vec{b}, t) =
     {\rm normalize} ({\rm Lerp}(\vec{a}, \vec{b}, t))
     \qquad t \in [0, 1]
 $$
+
 $$
     {\rm SLerp} (\vec{a}, \vec{b}, t) =
     \frac{\sin((1-t)\theta)}{\sin \theta} \vec{a} +
@@ -92,6 +109,7 @@ $$
 $$
 
 ## Matrix
+
 $$
     M =
     \begin{bmatrix}
@@ -101,7 +119,9 @@ $$
         c_{03} & c_{13} & c_{23} & c_{33} \\
     \end{bmatrix}
 $$
-Multiply with vector, $\vec{v_0}.w = 0$ as direction, $\vec{v_0}.w = 1$ as point.
+
+Multiply with vector, $\vec{v_0}.w=0$ as direction, $\vec{v_0}.w=1$ as point.
+
 $$
     \vec{v} = M\vec{v_0} \rightarrow
     \begin{bmatrix}
@@ -117,7 +137,9 @@ $$
         \vec{v_0}.w \\
     \end{bmatrix}
 $$
+
 ### Identity
+
 $$
     M_1 =
     \begin{bmatrix}
@@ -127,7 +149,9 @@ $$
         0 & 0 & 0 & 1 \\
     \end{bmatrix}
 $$
+
 ### Transpose
+
 $$
     M^T =
     \begin{bmatrix}
@@ -137,18 +161,23 @@ $$
         c_{30} & c_{31} & c_{32} & c_{33} \\
     \end{bmatrix}
 $$
+
 ### Inverse
+
 $$
     M M^{-1} = M^{-1} M = M_1
 $$
+
 $$
     (M^T)^{-1} = (M^{-1})^T
 $$
+
 $$
     (M_A M_B)^{-1} = M_A^{-1} M_B^{-1}
 $$
 
 ## Transform
+
 $$
     M_{TRS} = M_T M_R M_S =
     \begin{bmatrix}
@@ -158,10 +187,13 @@ $$
         0                            & 0                            & 0                            & 1          \\
     \end{bmatrix}
 $$
+
 $$
     M_{TRS}^{-1} = M_S^{-1} M_R^{-1} M_T^{-1}
 $$
+
 ### Translation
+
 $$
     M_T =
     \begin{bmatrix}
@@ -171,6 +203,7 @@ $$
         0 & 0 & 0 & 1 \\
     \end{bmatrix}
 $$
+
 $$
     M_T^{-1} =
     \begin{bmatrix}
@@ -180,7 +213,9 @@ $$
         0 & 0 & 0 & 1 \\
     \end{bmatrix}
 $$
+
 ### Scale
+
 $$
     M_S =
     \begin{bmatrix}
@@ -190,6 +225,7 @@ $$
         0 & 0 & 0 & 1 \\
     \end{bmatrix}
 $$
+
 $$
     M_S^{-1} =
     \begin{bmatrix}
@@ -199,12 +235,16 @@ $$
         0           & 0           & 0           & 1 \\
     \end{bmatrix}
 $$
+
 ### Euler rotation
+
 $$
     M_R = M_{Ra} M_{Rb} M_{Rc} \quad
     (a, b, c) \in \{(x,y,z), (x,z,y), (y,x,z), (y,z,x), (z,x,y), (z,y,x)\}
 $$
+
 #### Rotate around x axis by $\theta$
+
 $$
     M_{Rx} =
     \begin{bmatrix}
@@ -214,7 +254,9 @@ $$
         0 & 0           & 0            & 1 \\
     \end{bmatrix}
 $$
+
 #### Rotate around y axis by $\theta$
+
 $$
     M_{Ry} =
     \begin{bmatrix}
@@ -224,7 +266,9 @@ $$
         0            & 0 & 0           & 1 \\
     \end{bmatrix}
 $$
+
 #### Rotate around z axis by $\theta$
+
 $$
     M_{Rz} =
     \begin{bmatrix}
@@ -234,10 +278,13 @@ $$
         0           & 0            & 0 & 1 \\
     \end{bmatrix}
 $$
+
 ### Quaternion
+
 $$
     i^2=j^2=k^2=ijk=-1
 $$
+
 $$
     ij = k  \qquad
     ji = -k \qquad
@@ -246,26 +293,35 @@ $$
     ki = j  \qquad
     ik = -j
 $$
+
 $$
     \text{Axis } \vec{a} = x_a i + y_a j + z_a k \quad |\vec{a}| = 1
 $$
+
 Rotate around $\vec{a}$ axis by $\theta$
+
 $$
     q = \vec{a} \sin\left(\frac{\theta}{2}\right) + \cos\left(\frac{\theta}{2}\right) =
     (\vec{v}, w) = (x_a i + y_a j + z_a k) + w \qquad |q| = 1
 $$
+
 Rotate around $\vec{a}$ axis by $-\theta$
+
 $$
     q^{-1} = \vec{a} \sin\left(-\frac{\theta}{2}\right) + \cos\left(-\frac{\theta}{2}\right) =
     (-\vec{v}, w) = -(x_a i + y_a j + z_a k) + w \qquad |q^{-1}| = 1
 $$
+
 #### Multiply
+
 $$
     q_1 = (\vec{v_1}, w_1) = (x_1 i + y_1 j + z_1 k) + w_1
 $$
+
 $$
     q_2 = (\vec{v_2}, w_2) = (x_2 i + y_2 j + z_2 k) + w_2
 $$
+
 $$
     q_1 q_2 = (w_2 \vec{v_1} + w_1 \vec{v_2} + \vec{v_1} \times \vec{v_2},
     w_1 w_2 - \vec{v_1} \cdot{} \vec{v_2}) =
@@ -282,26 +338,36 @@ $$
         w_2 \\
     \end{bmatrix}
 $$
+
 #### Dot
+
 $$
     q_1 \cdot q_2 = |q_1| |q_2| \cos \theta = \cos \theta =
     x_1 x_2 + y_1 y_2 + z_1 z_2 + w_1 w_2
 $$
+
 #### Interpolation
+
 $$
     \Delta q = q_2 (q_1^{-1})
 $$
+
 $$
     q_t = {\rm NLerp}(q_1, q_2, t) \text{ or } {\rm SLerp}(q_1, q_2, t) \qquad t \in [0, 1]
 $$
+
 #### Rotate vector
+
 $$
     \vec{v_0} = x_0 i + y_0 j + z_0 k
 $$
+
 Rotate $\vec{v_0}$ around $\vec{a}$ axis by $\theta$ to $\vec{v}$
+
 $$
     \vec{v} = q \vec{v_0} (q^{-1})
 $$
+
 #### Matrix
 
 ### Euler to Quaternion
