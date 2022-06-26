@@ -16,10 +16,10 @@
       2. [Rotate around y axis by $\theta$](#rotate-around-y-axis-by-theta)
       3. [Rotate around z axis by $\theta$](#rotate-around-z-axis-by-theta)
    4. [Quaternion](#quaternion)
-      1. [Multiply](#multiply)
-      2. [Dot](#dot-1)
-      3. [Interpolation](#interpolation-1)
-      4. [Rotate vector](#rotate-vector)
+      1. [Rotate around any axis by $\theta$](#rotate-around-any-axis-by-theta)
+      2. [Multiply](#multiply)
+      3. [Dot](#dot-1)
+      4. [Interpolation](#interpolation-1)
       5. [Matrix](#matrix-1)
    5. [Euler to Quaternion](#euler-to-quaternion)
    6. [Look at](#look-at)
@@ -68,8 +68,8 @@ $$
 ### Cross
 
 $$
-    \vec{a} \times \vec{b} = (|\vec{a}| |\vec{b}| \sin\theta) \vec{n} =
-    (y_a z_b - z_a y_b, z_a x_b - x_a z_b, x_a y_b - y_a x_b)
+    \vec{a} \times \vec{b} = (|\vec{a}| |\vec{b}| \sin\theta) \vec{n} \\
+    = (y_a z_b - z_a y_b, z_a x_b - x_a z_b, x_a y_b - y_a x_b)
 $$
 
 $$
@@ -120,8 +120,6 @@ $$
     \end{bmatrix}
 $$
 
-Multiply with vector, $\vec{v_0}.w=0$ as direction, $\vec{v_0}.w=1$ as point.
-
 $$
     \vec{v} = M\vec{v_0} \rightarrow
     \begin{bmatrix}
@@ -136,6 +134,12 @@ $$
         \vec{v_0}.z \\
         \vec{v_0}.w \\
     \end{bmatrix}
+    \And
+    \begin{cases}
+        \vec{v_0}.w=0 & \vec{v_0} \text{ as direction} \\
+        & or \\
+        \vec{v_0}.w=1 & \vec{v_0} \text{ as point} 
+    \end{cases}
 $$
 
 ### Identity
@@ -179,7 +183,7 @@ $$
 ## Transform
 
 $$
-    M_{TRS} = M_T M_R M_S =
+    M_{TRS} = M_T M_R M_S \\ =
     \begin{bmatrix}
         M_R.c_{00} \times M_S.c_{00} & M_R.c_{10} \times M_S.c_{11} & M_R.c_{20} \times M_S.c_{22} & M_T.c_{30} \\
         M_R.c_{01} \times M_S.c_{00} & M_R.c_{11} \times M_S.c_{11} & M_R.c_{21} \times M_S.c_{22} & M_T.c_{31} \\
@@ -239,7 +243,7 @@ $$
 ### Euler rotation
 
 $$
-    M_R = M_{Ra} M_{Rb} M_{Rc} \quad
+    M_R = M_{Ra} M_{Rb} M_{Rc} \\
     (a, b, c) \in \{(x,y,z), (x,z,y), (y,x,z), (y,z,x), (z,x,y), (z,y,x)\}
 $$
 
@@ -294,37 +298,35 @@ $$
     ik = -j
 $$
 
-$$
-    \text{Axis } \vec{a} = x_a i + y_a j + z_a k \quad |\vec{a}| = 1
-$$
-
-Rotate around $\vec{a}$ axis by $\theta$
+#### Rotate around any axis by $\theta$
 
 $$
-    q = \vec{a} \sin\left(\frac{\theta}{2}\right) + \cos\left(\frac{\theta}{2}\right) =
-    (\vec{v}, w) = (x_a i + y_a j + z_a k) + w \qquad |q| = 1
-$$
-
-Rotate around $\vec{a}$ axis by $-\theta$
-
-$$
-    q^{-1} = \vec{a} \sin\left(-\frac{\theta}{2}\right) + \cos\left(-\frac{\theta}{2}\right) =
-    (-\vec{v}, w) = -(x_a i + y_a j + z_a k) + w \qquad |q^{-1}| = 1
+    \begin{split}
+        \text{Axis: } \quad & \vec{a}
+        = (x_a, y_a, z_a) = x_a i + y_a j + z_a k \quad |\vec{a}| = 1 \\
+        \text{Quaternion: } \quad & Q(\vec{a}, \theta)
+        = \vec{a} \sin\left(\frac{\theta}{2}\right) + \cos\left(\frac{\theta}{2}\right) \\
+        &= (\vec{u}, w) 
+        = (x i + y j + z k) + w \\
+        & |Q(\vec{a}, \theta)| = 1 \quad q = Q(\vec{a}, \theta) \quad q^{-1} = Q(\vec{a}, -\theta) \\
+        \text{Original vector: } \quad & \vec{v_0} = x_0 i + y_0 j + z_0 k \\
+        \text{Rotated vector: } \quad & \vec{v} = q \vec{v_0} (q^{-1})
+    \end{split}
 $$
 
 #### Multiply
 
 $$
-    q_1 = (\vec{v_1}, w_1) = (x_1 i + y_1 j + z_1 k) + w_1
+    q_1 = (\vec{u_1}, w_1) = (x_1 i + y_1 j + z_1 k) + w_1
 $$
 
 $$
-    q_2 = (\vec{v_2}, w_2) = (x_2 i + y_2 j + z_2 k) + w_2
+    q_2 = (\vec{u_2}, w_2) = (x_2 i + y_2 j + z_2 k) + w_2
 $$
 
 $$
     q_1 q_2 = (w_2 \vec{v_1} + w_1 \vec{v_2} + \vec{v_1} \times \vec{v_2},
-    w_1 w_2 - \vec{v_1} \cdot{} \vec{v_2}) =
+    w_1 w_2 - \vec{v_1} \cdot{} \vec{v_2}) \\ =
     \begin{bmatrix}
         w_1 & -z_1 & y_1 & x_1 \\
         z_1 & w_1 & -x_1 & y_1 \\
@@ -353,23 +355,101 @@ $$
 $$
 
 $$
-    q_t = {\rm NLerp}(q_1, q_2, t) \text{ or } {\rm SLerp}(q_1, q_2, t) \qquad t \in [0, 1]
-$$
-
-#### Rotate vector
-
-$$
-    \vec{v_0} = x_0 i + y_0 j + z_0 k
-$$
-
-Rotate $\vec{v_0}$ around $\vec{a}$ axis by $\theta$ to $\vec{v}$
-
-$$
-    \vec{v} = q \vec{v_0} (q^{-1})
+    q_t =
+    \left.
+    \begin{cases}
+        {\rm NLerp}(q_1, q_2, t) & \text{if is small} \\
+        \text{ or } \\
+        {\rm SLerp}(q_1, q_2, t) \\
+    \end{cases}
+    \right.
+    t \in [0, 1]
 $$
 
 #### Matrix
 
+$$
+    M_R =
+    \begin{bmatrix}
+        1-2y^2-2z^2 & 2xy+2zw       & 2xz-2yw       &0 \\
+        2xy-2zw     & 1-2x^2-2z^2   & 2yz+2xw       &0 \\
+        2xz+2yw     & 2yz-2xw       & 1-2x^2-2y^2   &0 \\
+        0           & 0             & 0             &1 \\
+    \end{bmatrix}
+$$
+
+$$
+    q
+    \left \{
+    \begin{array}{c}
+    x = & \frac{c_{21}-c_{12}}{4w} \\ 
+    y = & \frac{c_{20}-c_{02}}{4w} \\ 
+    z = & \frac{c_{10}-c_{01}}{4w} \\
+    w = & \frac{1}{2} \sqrt{1+c_{00}+c_{11}+c_{22}}\\
+    \end{array}
+    \right.
+$$
+
 ### Euler to Quaternion
 
+$$
+    s_x = \sin{\frac{\theta_x}{2}} \quad
+    s_y = \sin{\frac{\theta_y}{2}} \quad
+    s_z = \sin{\frac{\theta_z}{2}}
+$$
+
+$$
+    c_x = \cos{\frac{\theta_x}{2}} \quad
+    c_y = \cos{\frac{\theta_y}{2}} \quad
+    c_z = \cos{\frac{\theta_z}{2}}
+$$
+
+$$
+    q_x = s_x i + c_x \quad q_y = s_y j + c_y \quad q_z = s_z k + c_z
+$$
+
+$$
+    \begin{split}
+    q_a q_b q_c =
+    (
+        &(s_x c_y c_z + sign_1 s_y s_z c_x) i \\ +
+        &(s_y c_x c_z + sign_2 s_x s_z c_y) j \\ +
+        &(s_z c_x c_y + sign_3 s_x s_y c_z) k \\ +
+        &(c_x c_y c_z + sign_4 s_x s_y s_z)
+    )
+    \end{split}
+$$
+
+$$
+    (a, b, c, sign_1, sign_2, sign_3) \in
+    \left\{
+    \begin{array}{c}
+        (x, y, z, -1,  1, -1,  1) \\
+        (x, z, y,  1,  1, -1, -1) \\
+        (y, x, z, -1,  1,  1, -1) \\
+        (y, z, x, -1, -1,  1,  1) \\
+        (z, x, y,  1, -1, -1,  1) \\
+        (z, y, x,  1, -1,  1, -1) \\
+    \end{array}
+    \right.
+$$
+
 ### Look at
+
+$$
+    \begin{array}{c}
+        \vec{nr} = & {\rm normalize}(\vec{right})   \\
+        \vec{nu} = & {\rm normalize}(\vec{up})      \\
+        \vec{nf} = & {\rm normalize}(\vec{forward}) \\
+    \end{array}
+$$
+
+$$
+    M_R =
+    \begin{bmatrix}
+        \vec{nr}.x & \vec{nu}.x & \vec{nf}.x & 0 \\
+        \vec{nr}.y & \vec{nu}.y & \vec{nf}.y & 0 \\
+        \vec{nr}.z & \vec{nu}.z & \vec{nf}.z & 0 \\
+        0          & 0          & 0          & 1 \\
+    \end{bmatrix}
+$$
