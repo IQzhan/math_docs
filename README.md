@@ -1,30 +1,30 @@
 # Game Math & Algorithm<!-- omit in toc -->
 
-1. [Vector](#vector)
-   1. [Dot](#dot)
-   2. [Cross](#cross)
-   3. [Interpolation](#interpolation)
-2. [Matrix](#matrix)
-   1. [Identity](#identity)
-   2. [Transpose](#transpose)
-   3. [Inverse](#inverse)
-3. [Transform](#transform)
-   1. [Translation](#translation)
-   2. [Scale](#scale)
-   3. [Euler rotation](#euler-rotation)
-      1. [Rotate around x axis by $\theta$](#rotate-around-x-axis-by-theta)
-      2. [Rotate around y axis by $\theta$](#rotate-around-y-axis-by-theta)
-      3. [Rotate around z axis by $\theta$](#rotate-around-z-axis-by-theta)
-   4. [Quaternion](#quaternion)
-      1. [Rotate around any axis by $\theta$](#rotate-around-any-axis-by-theta)
-      2. [Multiply](#multiply)
-      3. [Dot](#dot-1)
-      4. [Interpolation](#interpolation-1)
-      5. [Matrix](#matrix-1)
-   5. [Euler to Quaternion](#euler-to-quaternion)
-   6. [Look at](#look-at)
+- [1. Vector](#1-vector)
+  - [Dot](#dot)
+  - [Cross](#cross)
+  - [Interpolation](#interpolation)
+- [2. Matrix](#2-matrix)
+  - [Identity](#identity)
+  - [Transpose](#transpose)
+  - [Inverse](#inverse)
+- [3. Transform](#3-transform)
+  - [Translation](#translation)
+  - [Scale](#scale)
+  - [Euler rotation](#euler-rotation)
+    - [Rotate around x axis](#rotate-around-x-axis)
+    - [Rotate around y axis](#rotate-around-y-axis)
+    - [Rotate around z axis](#rotate-around-z-axis)
+  - [Quaternion](#quaternion)
+    - [Rotate around any axis](#rotate-around-any-axis)
+    - [Multiply](#multiply)
+    - [Dot](#dot-1)
+    - [Interpolation](#interpolation-1)
+    - [Matrix](#matrix)
+  - [Euler to Quaternion](#euler-to-quaternion)
+  - [Look at](#look-at)
 
-## Vector
+## 1. Vector
 
 $$
     \vec{v} = (x, y, z, w) =
@@ -68,8 +68,10 @@ $$
 ### Cross
 
 $$
-    \vec{a} \times \vec{b} = (|\vec{a}| |\vec{b}| \sin\theta) \vec{n} \\
-    = (y_a z_b - z_a y_b, z_a x_b - x_a z_b, x_a y_b - y_a x_b)
+    \begin{array}{c}
+        \vec{a} \times \vec{b} = (|\vec{a}| |\vec{b}| \sin\theta) \vec{n} \\
+        = (y_a z_b - z_a y_b, z_a x_b - x_a z_b, x_a y_b - y_a x_b)
+    \end{array}
 $$
 
 $$
@@ -108,7 +110,7 @@ $$
     \qquad t \in [0, 1]
 $$
 
-## Matrix
+## 2. Matrix
 
 $$
     M =
@@ -180,16 +182,19 @@ $$
     (M_A M_B)^{-1} = M_A^{-1} M_B^{-1}
 $$
 
-## Transform
+## 3. Transform
 
 $$
-    M_{TRS} = M_T M_R M_S \\ =
-    \begin{bmatrix}
-        M_R.c_{00} \times M_S.c_{00} & M_R.c_{10} \times M_S.c_{11} & M_R.c_{20} \times M_S.c_{22} & M_T.c_{30} \\
-        M_R.c_{01} \times M_S.c_{00} & M_R.c_{11} \times M_S.c_{11} & M_R.c_{21} \times M_S.c_{22} & M_T.c_{31} \\
-        M_R.c_{02} \times M_S.c_{00} & M_R.c_{12} \times M_S.c_{11} & M_R.c_{22} \times M_S.c_{22} & M_T.c_{32} \\
-        0                            & 0                            & 0                            & 1          \\
-    \end{bmatrix}
+    \begin{array}{c}
+        M_{TRS} = M_T M_R M_S \\
+        =
+        \begin{bmatrix}
+            M_R.c_{00} \times M_S.c_{00} & M_R.c_{10} \times M_S.c_{11} & M_R.c_{20} \times M_S.c_{22} & M_T.c_{30} \\
+            M_R.c_{01} \times M_S.c_{00} & M_R.c_{11} \times M_S.c_{11} & M_R.c_{21} \times M_S.c_{22} & M_T.c_{31} \\
+            M_R.c_{02} \times M_S.c_{00} & M_R.c_{12} \times M_S.c_{11} & M_R.c_{22} \times M_S.c_{22} & M_T.c_{32} \\
+            0                            & 0                            & 0                            & 1          \\
+        \end{bmatrix}
+    \end{array}
 $$
 
 $$
@@ -243,11 +248,13 @@ $$
 ### Euler rotation
 
 $$
-    M_R = M_{Ra} M_{Rb} M_{Rc} \\
-    (a, b, c) \in \{(x,y,z), (x,z,y), (y,x,z), (y,z,x), (z,x,y), (z,y,x)\}
+    \begin{array}{c}
+        M_R = M_{Ra} M_{Rb} M_{Rc} \\
+        (a, b, c) \in \{(x,y,z), (x,z,y), (y,x,z), (y,z,x), (z,x,y), (z,y,x)\}
+    \end{array}
 $$
 
-#### Rotate around x axis by $\theta$
+#### Rotate around x axis
 
 $$
     M_{Rx} =
@@ -259,7 +266,7 @@ $$
     \end{bmatrix}
 $$
 
-#### Rotate around y axis by $\theta$
+#### Rotate around y axis
 
 $$
     M_{Ry} =
@@ -271,7 +278,7 @@ $$
     \end{bmatrix}
 $$
 
-#### Rotate around z axis by $\theta$
+#### Rotate around z axis
 
 $$
     M_{Rz} =
@@ -298,7 +305,7 @@ $$
     ik = -j
 $$
 
-#### Rotate around any axis by $\theta$
+#### Rotate around any axis
 
 $$
     \begin{split}
@@ -325,20 +332,23 @@ $$
 $$
 
 $$
-    q_1 q_2 = (w_2 \vec{v_1} + w_1 \vec{v_2} + \vec{v_1} \times \vec{v_2},
-    w_1 w_2 - \vec{v_1} \cdot{} \vec{v_2}) \\ =
-    \begin{bmatrix}
-        w_1 & -z_1 & y_1 & x_1 \\
-        z_1 & w_1 & -x_1 & y_1 \\
-        -y_1 & x_1 & w_1 & z_1 \\
-        -x_1 & -y_1 & -z_1 & w_1 \\
-    \end{bmatrix}
-    \begin{bmatrix}
-        x_2 \\
-        y_2 \\
-        z_2 \\
-        w_2 \\
-    \end{bmatrix}
+    \begin{array}{c}
+        q_1 q_2 & = (w_2 \vec{v_1} + w_1 \vec{v_2} + \vec{v_1} \times \vec{v_2},
+        w_1 w_2 - \vec{v_1} \cdot{} \vec{v_2}) \\
+        & =
+        \begin{bmatrix}
+            w_1 & -z_1 & y_1 & x_1 \\
+            z_1 & w_1 & -x_1 & y_1 \\
+            -y_1 & x_1 & w_1 & z_1 \\
+            -x_1 & -y_1 & -z_1 & w_1 \\
+        \end{bmatrix}
+        \begin{bmatrix}
+            x_2 \\
+            y_2 \\
+            z_2 \\
+            w_2 \\
+        \end{bmatrix}
+    \end{array}
 $$
 
 #### Dot
@@ -358,9 +368,9 @@ $$
     q_t =
     \left.
     \begin{cases}
-        {\rm NLerp}(q_1, q_2, t) & \text{if is small} \\
-        \text{ or } \\
-        {\rm SLerp}(q_1, q_2, t) \\
+        {\rm NLerp}(q_1, q_2, t) & \text{if } t \text{ is small} \\
+                                 & \text{ or }                   \\
+        {\rm SLerp}(q_1, q_2, t) & \text{if } t \text{ is big}   \\
     \end{cases}
     \right.
     t \in [0, 1]
@@ -380,58 +390,50 @@ $$
 
 $$
     q
-    \left \{
-    \begin{array}{c}
-    x = & \frac{c_{21}-c_{12}}{4w} \\ 
-    y = & \frac{c_{20}-c_{02}}{4w} \\ 
-    z = & \frac{c_{10}-c_{01}}{4w} \\
-    w = & \frac{1}{2} \sqrt{1+c_{00}+c_{11}+c_{22}}\\
-    \end{array}
-    \right.
+    \begin{cases}
+        x = & \frac{c_{21}-c_{12}}{4w} \\ 
+        y = & \frac{c_{20}-c_{02}}{4w} \\ 
+        z = & \frac{c_{10}-c_{01}}{4w} \\
+        w = & \frac{1}{2} \sqrt{1+c_{00}+c_{11}+c_{22}}\\
+    \end{cases}
 $$
 
 ### Euler to Quaternion
 
 $$
-    s_x = \sin{\frac{\theta_x}{2}} \quad
-    s_y = \sin{\frac{\theta_y}{2}} \quad
-    s_z = \sin{\frac{\theta_z}{2}}
+    \begin{cases}
+        s_x = \sin{\frac{\theta_x}{2}} \quad
+        s_y = \sin{\frac{\theta_y}{2}} \quad
+        s_z = \sin{\frac{\theta_z}{2}} \\
+        c_x = \cos{\frac{\theta_x}{2}} \quad
+        c_y = \cos{\frac{\theta_y}{2}} \quad
+        c_z = \cos{\frac{\theta_z}{2}} \\
+        q_x = s_x i + c_x \qquad \text{Rotate around x} \\
+        q_y = s_y j + c_y \qquad \text{Rotate around y} \\
+        q_z = s_z k + c_z \qquad \text{Rotate around z} \\
+    \end{cases}
 $$
 
 $$
-    c_x = \cos{\frac{\theta_x}{2}} \quad
-    c_y = \cos{\frac{\theta_y}{2}} \quad
-    c_z = \cos{\frac{\theta_z}{2}}
-$$
-
-$$
-    q_x = s_x i + c_x \quad q_y = s_y j + c_y \quad q_z = s_z k + c_z
-$$
-
-$$
-    \begin{split}
-    q_a q_b q_c =
-    (
-        &(s_x c_y c_z + sign_1 s_y s_z c_x) i \\ +
-        &(s_y c_x c_z + sign_2 s_x s_z c_y) j \\ +
-        &(s_z c_x c_y + sign_3 s_x s_y c_z) k \\ +
-        &(c_x c_y c_z + sign_4 s_x s_y s_z)
-    )
-    \end{split}
-$$
-
-$$
-    (a, b, c, sign_1, sign_2, sign_3) \in
-    \left\{
-    \begin{array}{c}
-        (x, y, z, -1,  1, -1,  1) \\
-        (x, z, y,  1,  1, -1, -1) \\
-        (y, x, z, -1,  1,  1, -1) \\
-        (y, z, x, -1, -1,  1,  1) \\
-        (z, x, y,  1, -1, -1,  1) \\
-        (z, y, x,  1, -1,  1, -1) \\
-    \end{array}
-    \right.
+    \implies
+    \begin{cases}
+        q_a q_b q_c =
+        \begin{array}{c}
+            &((s_x c_y c_z + sign_1 s_y s_z c_x) i \\ 
+            &+(s_y c_x c_z + sign_2 s_x s_z c_y) j \\ 
+            &+(s_z c_x c_y + sign_3 s_x s_y c_z) k \\ 
+            &+(c_x c_y c_z + sign_4 s_x s_y s_z))
+        \end{array} \\
+        (a, b, c, sign_1, sign_2, sign_3) \in
+        \begin{cases}
+            (x, y, z, -1,  1, -1,  1) \\
+            (x, z, y,  1,  1, -1, -1) \\
+            (y, x, z, -1,  1,  1, -1) \\
+            (y, z, x, -1, -1,  1,  1) \\
+            (z, x, y,  1, -1, -1,  1) \\
+            (z, y, x,  1, -1,  1, -1) \\
+        \end{cases}
+    \end{cases}
 $$
 
 ### Look at
