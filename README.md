@@ -368,9 +368,9 @@ $$
     q_t =
     \left.
     \begin{cases}
-        {\rm NLerp}(q_1, q_2, t) & \text{if } t \text{ is small} \\
+        {\rm NLerp}(q_1, q_2, t) & \text{if } \Delta q \text{ is small} \\
                                  & \text{ or }                   \\
-        {\rm SLerp}(q_1, q_2, t) & \text{if } t \text{ is big}   \\
+        {\rm SLerp}(q_1, q_2, t) & \text{if } \Delta q \text{ is big}   \\
     \end{cases}
     \right.
     t \in [0, 1]
