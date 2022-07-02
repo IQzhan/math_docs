@@ -23,6 +23,24 @@
     - [3.4.5. Matrix](#345-matrix)
   - [3.5. Euler to Quaternion](#35-euler-to-quaternion)
   - [3.6. Look at](#36-look-at)
+- [4. Render pipeline](#4-render-pipeline)
+  - [4.1. Camera](#41-camera)
+  - [4.2. Object space to World space](#42-object-space-to-world-space)
+  - [4.3. World space to View space](#43-world-space-to-view-space)
+  - [4.4. View space to Clip space (Projection)](#44-view-space-to-clip-space-projection)
+    - [4.4.1. Orthographic](#441-orthographic)
+      - [4.4.1.1. OpenGL](#4411-opengl)
+      - [4.4.1.2. DirectX](#4412-directx)
+    - [4.4.2. Perspective](#442-perspective)
+      - [4.4.2.1. OpenGL](#4421-opengl)
+      - [4.4.2.2. DirectX](#4422-directx)
+  - [4.5. Clip position to Normalized-Device-Coordinates (NDC)](#45-clip-position-to-normalized-device-coordinates-ndc)
+  - [4.6. Vertex in shader](#46-vertex-in-shader)
+    - [4.6.1. Vertex shader output](#461-vertex-shader-output)
+    - [4.6.2. Fragment shader input](#462-fragment-shader-input)
+  - [4.7. Depth](#47-depth)
+    - [4.7.1. Write into depth texture](#471-write-into-depth-texture)
+    - [4.7.2. Read from depth texture](#472-read-from-depth-texture)
 
 ## 1. Vector
 
@@ -139,7 +157,7 @@ $$
     \And
     \begin{cases}
         \vec{v_0}.w=0 & \vec{v_0} \text{ as direction} \\
-        & or \\
+        & \text{ or } \\
         \vec{v_0}.w=1 & \vec{v_0} \text{ as point} 
     \end{cases}
 $$
@@ -458,4 +476,385 @@ $$
         \vec{nr}.z & \vec{nu}.z & \vec{nf}.z & 0 \\
         0          & 0          & 0          & 1 \\
     \end{bmatrix}
+$$
+
+## 4. Render pipeline
+
+### 4.1. Camera
+
+$$
+    \begin{cases}
+        n  &\text{Near clip plane distance value from camera}                                    \\
+        f  &\text{Far clip plane distance value from camera}                                     \\
+        l  &\text{Min x coordinate value at near plane}                                          \\
+        r  &\text{Max x coordinate value at near plane}                                          \\
+        b  &\text{Min y coordinate value at near plane}                                          \\
+        t  &\text{Max y coordinate value at near plane}                                          \\
+        a  & = \frac{r-l}{t-b} \And \{ t=-b, r=-l \} \qquad \text{Aspect ratio}                  \\
+        \theta  & = 2 \arctan{\frac{t-b}{2n}} \And  \{ t=-b, r=-l \} \qquad \text{Field of view} \\
+    \end{cases}
+$$
+
+### 4.2. Object space to World space
+
+$$
+    M_M = {M_{TRS}}_{object} \quad \text{which is object's transform matrix}
+$$
+
+$$
+    \begin{bmatrix}
+        x_{world} \\
+        y_{world} \\
+        z_{world} \\
+        1 \\
+    \end{bmatrix}
+    = M_M
+    \begin{bmatrix}
+        x_{object} \\
+        y_{object} \\
+        z_{object} \\
+        1 \\
+    \end{bmatrix}
+$$
+
+### 4.3. World space to View space
+
+$$
+    M_V =
+    \begin{bmatrix}
+        1 & 0 & 0  & 0 \\
+        0 & 1 & 0  & 0 \\
+        0 & 0 & -1 & 0 \\
+        0 & 0 & 0  & 1 \\
+    \end{bmatrix}
+    {M_R^{-1}}_{camera} {M_T^{-1}}_{camera}
+    \quad \text{which is camera's } M_R^{-1} \text{ and } M_T^{-1}
+$$
+
+$$
+    \begin{bmatrix}
+        x_{view} \\
+        y_{view} \\
+        z_{view} \\
+        1 \\
+    \end{bmatrix}
+    \And \{ -n \geq z_{view} \geq -f \}
+    = M_V
+    \begin{bmatrix}
+        x_{world} \\
+        y_{world} \\
+        z_{world} \\
+        1 \\
+    \end{bmatrix}
+$$
+
+### 4.4. View space to Clip space (Projection)
+
+In DirectX platform,Unity remap OpenGL z and reverse z depth into DirectX z.
+
+$$
+    M_{GL2DX} =
+    \begin{bmatrix}
+        1 & 0 & 0            & 0           \\
+        0 & 1 & 0            & 0           \\
+        0 & 0 & -\frac{1}{2} & \frac{1}{2} \\
+        0 & 0 & 0            & 1           \\
+    \end{bmatrix}
+$$
+
+#### 4.4.1. Orthographic
+
+##### 4.4.1.1. OpenGL
+
+$$
+    M_P = {M_{ortho}}_{GL} =
+    \begin{bmatrix}
+        \frac{2}{r-l} & 0             & 0              & -\frac{r+l}{r-l} \\
+        0             & \frac{2}{t-b} & 0              & -\frac{t+b}{t-b} \\
+        0             & 0             & -\frac{2}{f-n} & -\frac{f+n}{f-n} \\
+        0             & 0             & 0              & 1                \\
+    \end{bmatrix}
+$$
+
+$$
+    \begin{bmatrix}
+        x_{clip}                     \\
+        y_{clip}                     \\
+        z_{clip}                     \\
+        w_{clip} = 1                 \\
+    \end{bmatrix}
+    \And
+    \begin{cases}
+        -1 & \leq x_{clip} & \leq 1  \\
+        -1 & \leq y_{clip} & \leq 1  \\
+        -1 & \leq z_{clip} & \leq 1  \\
+    \end{cases}
+    = M_P
+    \begin{bmatrix}
+        x_{view}                     \\
+        y_{view}                     \\
+        z_{view}                     \\
+        1                            \\
+    \end{bmatrix}
+$$
+
+##### 4.4.1.2. DirectX
+
+$$
+    \text{Original } {M_{ortho}}_{DX} =
+    \begin{bmatrix}
+        \frac{2}{r-l} & 0             & 0              & -\frac{r+l}{r-l} \\
+        0             & \frac{2}{t-b} & 0              & -\frac{t+b}{t-b} \\
+        0             & 0             & \frac{1}{f-n} & -\frac{n}{f-n}    \\
+        0             & 0             & 0              & 1                \\
+    \end{bmatrix}
+$$
+
+$$
+    \text{But in Unity } M_P = M_{GL2DX} {M_{ortho}}_{GL} =
+    \begin{bmatrix}
+        \frac{2}{r-l} & 0             & 0              & -\frac{r+l}{r-l} \\
+        0             & \frac{2}{t-b} & 0              & -\frac{t+b}{t-b} \\
+        0             & 0             & \frac{1}{f-n}  & \frac{f}{f-n}    \\
+        0             & 0             & 0              & 1                \\
+    \end{bmatrix}
+$$
+
+$$
+    \begin{bmatrix}
+        x_{clip}                     \\
+        y_{clip}                     \\
+        z_{clip}                     \\
+        w_{clip} = 1                 \\
+    \end{bmatrix}
+    \And
+    \begin{cases}
+        -1 & \leq x_{clip} & \leq 1  \\
+        -1 & \leq y_{clip} & \leq 1  \\
+        1  & \geq z_{clip} & \geq 0  \\
+    \end{cases}
+    = M_P
+    \begin{bmatrix}
+        x_{view}                     \\
+        y_{view}                     \\
+        z_{view}                     \\
+        1                            \\
+    \end{bmatrix}
+$$
+
+#### 4.4.2. Perspective
+
+##### 4.4.2.1. OpenGL
+
+$$
+    M_P = {M_{persp}}_{GL} =
+    \begin{bmatrix}
+        \frac{2n}{r-l} & 0              & \frac{r+l}{r-l}  & 0                   \\
+        0              & \frac{2n}{t-b} & \frac{t+b}{t-b}  & 0                   \\
+        0              & 0              & -\frac{f+n}{f-n} & -\frac{2fn}{f-n}    \\
+        0              & 0              & -1               & 0                   \\
+    \end{bmatrix}
+$$
+
+$$
+    \begin{bmatrix}
+        x_{clip}                          \\
+        y_{clip}                          \\
+        z_{clip}                          \\
+        w_{clip} = -z_{view} = z_{camera} \\
+    \end{bmatrix}
+    \And
+    \begin{cases}
+        -n & \leq x_{clip} & \leq f       \\
+        -n & \leq y_{clip} & \leq f       \\
+        -n & \leq z_{clip} & \leq f       \\
+    \end{cases}
+    = M_P
+    \begin{bmatrix}
+        x_{view}                          \\
+        y_{view}                          \\
+        z_{view}                          \\
+        1                                 \\
+    \end{bmatrix}
+$$
+
+##### 4.4.2.2. DirectX
+
+$$
+    \text{Original } {M_{persp}}_{DX} =
+    \begin{bmatrix}
+        \frac{2n}{r-l} & 0              & -\frac{r+l}{r-l}  & 0                   \\
+        0              & \frac{2n}{t-b} & -\frac{t+b}{t-b}  & 0                   \\
+        0              & 0              & \frac{f}{f-n}     & -\frac{fn}{f-n}     \\
+        0              & 0              & 1                 & 0                   \\
+    \end{bmatrix}
+$$
+
+$$
+    \text{But in Unity } M_P = M_{GL2DX} {M_{persp}}_{GL} =
+    \begin{bmatrix}
+        \frac{2n}{r-l} & 0              & \frac{r+l}{r-l}  & 0                   \\
+        0              & \frac{2n}{t-b} & \frac{t+b}{t-b}  & 0                   \\
+        0              & 0              & \frac{n}{f-n}    & \frac{fn}{f-n}      \\
+        0              & 0              & -1               & 0                   \\
+    \end{bmatrix}
+$$
+
+$$
+    \begin{bmatrix}
+        x_{clip}                          \\
+        y_{clip}                          \\
+        z_{clip}                          \\
+        w_{clip} = -z_{view} = z_{camera} \\
+    \end{bmatrix}
+    \And
+    \begin{cases}
+        -n & \leq x_{clip} & \leq f       \\
+        -n & \leq y_{clip} & \leq f       \\
+        n  & \geq z_{clip} & \geq 0       \\
+    \end{cases}
+    = M_P
+    \begin{bmatrix}
+        x_{view}                          \\
+        y_{view}                          \\
+        z_{view}                          \\
+        1                                 \\
+    \end{bmatrix}
+$$
+
+### 4.5. Clip position to Normalized-Device-Coordinates (NDC)
+
+$$
+    \begin{bmatrix}
+        x_{NDC} = \frac{x_{clip}}{w_{clip}} \\
+        y_{NDC} = \frac{y_{clip}}{w_{clip}} \\
+        z_{NDC} = \frac{z_{clip}}{w_{clip}} \\
+        1 \\
+    \end{bmatrix}
+    \And
+    \begin{cases}
+        \text{OpenGL}  &
+        \begin{cases}
+            -1 & \leq x_{NDC} & \leq 1 \\
+            -1 & \leq y_{NDC} & \leq 1 \\
+            -1 & \leq z_{NDC} & \leq 1 \\
+        \end{cases}                    \\
+        \text{ or }                    \\
+        \text{DirectX} & 
+        \begin{cases}
+            -1 & \leq x_{NDC} & \leq 1 \\
+            -1 & \leq y_{NDC} & \leq 1 \\
+            1  & \geq z_{NDC} & \geq 0 \\
+        \end{cases}                    \\
+    \end{cases}
+$$
+
+### 4.6. Vertex in shader
+
+#### 4.6.1. Vertex shader output
+
+$$
+    SV\_ POSITION =
+    \begin{bmatrix}
+        x_{clip}    \\
+        y_{clip}    \\
+        z_{clip}    \\
+        w_{clip}    \\
+    \end{bmatrix}
+    = M_P M_V M_M
+    \begin{bmatrix}
+        x_{object}  \\
+        y_{object}  \\
+        z_{object}  \\
+        1           \\
+    \end{bmatrix}
+$$
+
+#### 4.6.2. Fragment shader input
+
+$$
+    SV\_ POSITION =
+    \begin{bmatrix}
+        (\frac{x_{NDC}}{2} + \frac{1}{2}) \times [\text{output texture width}] + \frac{1}{2}  \\
+        (\frac{y_{NDC}}{2} + \frac{1}{2}) \times [\text{output texture height}] + \frac{1}{2} \\
+        z_{NDC}                                                                               \\
+        w_{clip}                                                                              \\
+    \end{bmatrix}
+$$
+
+### 4.7. Depth
+
+#### 4.7.1. Write into depth texture
+
+$$
+    texture.r =
+    \begin{cases}
+        \text{OpenGL}  : & \frac{z_{NDC}}{2} + \frac{1}{2}  \\
+        \text{ or }                                         \\
+        \text{DirectX} : & z_{NDC}                          \\
+    \end{cases}
+$$
+
+#### 4.7.2. Read from depth texture
+
+$$
+    zP =
+    \begin{cases}
+        \text{OpenGL} &
+        \begin{cases}
+            x = 1 - \frac{f}{n}            \\
+            y = \frac{f}{n}                \\
+            z = \frac{1}{f} - \frac{1}{n}  \\
+            w = \frac{1}{n}                \\
+        \end{cases}                        \\
+        \text{ or }                        \\
+        \text{DirectX} &
+        \begin{cases}
+            x = -1 + \frac{f}{n}           \\
+            y = 1                          \\
+            z = -\frac{1}{f} + \frac{1}{n} \\
+            w = \frac{1}{f}                \\
+        \end{cases}                        \\
+    \end{cases}
+$$
+
+$$
+    {\rm RevZ}(r) =
+    \begin{cases}
+        \text{OpenGL}  : & r     \\
+        \text{ or }              \\
+        \text{DirectX} : & 1 - r \\
+    \end{cases}
+$$
+
+$$
+    depth =
+    \begin{cases}
+        \text{Orthographic} &
+        \begin{cases}
+            01 &
+            \begin{cases}
+                \text{from 0} : & \frac{(f-n) \times {\rm RevZ}(r) + n}{f}  \\
+                \text{from n} : & {\rm RevZ}(r)                             \\
+            \end{cases}                                                     \\
+            eye &
+            \begin{cases}
+                \text{from 0} : & (f-n) \times {\rm RevZ}(r) + n            \\
+                \text{from n} : & (f-n) \times {\rm RevZ}(r)                \\
+            \end{cases}                                                     \\
+        \end{cases}                                                         \\
+        \text{Perspective} &
+        \begin{cases}
+            01 &
+            \begin{cases}
+                \text{from 0} : & \frac{1}{zP.x \times r + zP.y}            \\
+                \text{from n} : & \frac{1}{zP.x + \frac{zP.y}{r}}           \\
+            \end{cases}                                                     \\
+            eye &
+            \begin{cases}
+                \text{from 0} : & \frac{1}{zP.z \times r + zP.w}            \\
+                \text{from n} : & \frac{1}{zP.z \times r + zP.w} - n        \\
+            \end{cases}                                                     \\
+        \end{cases}                                                         \\
+    \end{cases}
 $$
