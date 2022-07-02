@@ -272,7 +272,7 @@ $$
 $$
     \begin{array}{c}
         M_R = M_{Ra} M_{Rb} M_{Rc} \\
-        (a, b, c) \in \{(x,y,z), (x,z,y), (y,x,z), (y,z,x), (z,x,y), (z,y,x)\}
+        (a, b, c) \in \lbrace (x,y,z), (x,z,y), (y,x,z), (y,z,x), (z,x,y), (z,y,x) \rbrace
     \end{array}
 $$
 
@@ -490,8 +490,8 @@ $$
         r  &\text{Max x coordinate value at near plane}                                          \\
         b  &\text{Min y coordinate value at near plane}                                          \\
         t  &\text{Max y coordinate value at near plane}                                          \\
-        a  & = \frac{r-l}{t-b} \And \{ t=-b, r=-l \} \qquad \text{Aspect ratio}                  \\
-        \theta  & = 2 \arctan{\frac{t-b}{2n}} \And  \{ t=-b, r=-l \} \qquad \text{Field of view} \\
+        a  & = \frac{r-l}{t-b} \And \lbrace t=-b, r=-l \rbrace \qquad \text{Aspect ratio}                  \\
+        \theta  & = 2 \arctan{\frac{t-b}{2n}} \And \lbrace t=-b, r=-l \rbrace \qquad \text{Field of view} \\
     \end{cases}
 $$
 
@@ -538,7 +538,7 @@ $$
         z_{view} \\
         1 \\
     \end{bmatrix}
-    \And \{ -n \geq z_{view} \geq -f \}
+    \And \lbrace -n \geq z_{view} \geq -f \rbrace
     = M_V
     \begin{bmatrix}
         x_{world} \\
