@@ -1,28 +1,28 @@
-# Game Math & Algorithm<!-- omit in toc -->
+# Game Math & Algorithm
 
 - [1. Vector](#1-vector)
-  - [Dot](#dot)
-  - [Cross](#cross)
-  - [Interpolation](#interpolation)
+  - [1.1. Dot](#11-dot)
+  - [1.2. Cross](#12-cross)
+  - [1.3. Interpolation](#13-interpolation)
 - [2. Matrix](#2-matrix)
-  - [Identity](#identity)
-  - [Transpose](#transpose)
-  - [Inverse](#inverse)
+  - [2.1. Identity](#21-identity)
+  - [2.2. Transpose](#22-transpose)
+  - [2.3. Inverse](#23-inverse)
 - [3. Transform](#3-transform)
-  - [Translation](#translation)
-  - [Scale](#scale)
-  - [Euler rotation](#euler-rotation)
-    - [Rotate around x axis](#rotate-around-x-axis)
-    - [Rotate around y axis](#rotate-around-y-axis)
-    - [Rotate around z axis](#rotate-around-z-axis)
-  - [Quaternion](#quaternion)
-    - [Rotate around any axis](#rotate-around-any-axis)
-    - [Multiply](#multiply)
-    - [Dot](#dot-1)
-    - [Interpolation](#interpolation-1)
-    - [Matrix](#matrix)
-  - [Euler to Quaternion](#euler-to-quaternion)
-  - [Look at](#look-at)
+  - [3.1. Translation](#31-translation)
+  - [3.2. Scale](#32-scale)
+  - [3.3. Euler rotation](#33-euler-rotation)
+    - [3.3.1. Rotate around x axis](#331-rotate-around-x-axis)
+    - [3.3.2. Rotate around y axis](#332-rotate-around-y-axis)
+    - [3.3.3. Rotate around z axis](#333-rotate-around-z-axis)
+  - [3.4. Quaternion](#34-quaternion)
+    - [3.4.1. Rotate around any axis](#341-rotate-around-any-axis)
+    - [3.4.2. Multiply](#342-multiply)
+    - [3.4.3. Dot](#343-dot)
+    - [3.4.4. Interpolation](#344-interpolation)
+    - [3.4.5. Matrix](#345-matrix)
+  - [3.5. Euler to Quaternion](#35-euler-to-quaternion)
+  - [3.6. Look at](#36-look-at)
 
 ## 1. Vector
 
@@ -36,7 +36,7 @@ $$
     \end{bmatrix}
 $$
 
-### Dot
+### 1.1. Dot
 
 $$
     \vec{a} = (x_a, y_a, z_a, 1) 
@@ -65,12 +65,12 @@ $$
     \vec{a} \cdot (\lambda\vec{b})
 $$
 
-### Cross
+### 1.2. Cross
 
 $$
     \begin{array}{c}
         \vec{a} \times \vec{b} = (|\vec{a}| |\vec{b}| \sin\theta) \vec{n} \\
-        = (y_a z_b - z_a y_b, z_a x_b - x_a z_b, x_a y_b - y_a x_b)
+        = (y_a z_b - z_a y_b,\quad z_a x_b - x_a z_b,\quad x_a y_b - y_a x_b)
     \end{array}
 $$
 
@@ -89,7 +89,7 @@ $$
     \lambda(\vec{a} \times \vec{b}) = \vec{a} \times (\lambda\vec{b})
 $$
 
-### Interpolation
+### 1.3. Interpolation
 
 $$
     {\rm Lerp} (\vec{a}, \vec{b}, t) =
@@ -144,7 +144,7 @@ $$
     \end{cases}
 $$
 
-### Identity
+### 2.1. Identity
 
 $$
     M_1 =
@@ -156,7 +156,7 @@ $$
     \end{bmatrix}
 $$
 
-### Transpose
+### 2.2. Transpose
 
 $$
     M^T =
@@ -168,7 +168,7 @@ $$
     \end{bmatrix}
 $$
 
-### Inverse
+### 2.3. Inverse
 
 $$
     M M^{-1} = M^{-1} M = M_1
@@ -179,7 +179,7 @@ $$
 $$
 
 $$
-    (M_A M_B)^{-1} = M_A^{-1} M_B^{-1}
+    (M_A M_B)^{-1} = M_B^{-1} M_A^{-1}
 $$
 
 ## 3. Transform
@@ -198,10 +198,14 @@ $$
 $$
 
 $$
+    M_R^{-1} = M_R^T
+$$
+
+$$
     M_{TRS}^{-1} = M_S^{-1} M_R^{-1} M_T^{-1}
 $$
 
-### Translation
+### 3.1. Translation
 
 $$
     M_T =
@@ -223,7 +227,7 @@ $$
     \end{bmatrix}
 $$
 
-### Scale
+### 3.2. Scale
 
 $$
     M_S =
@@ -245,7 +249,7 @@ $$
     \end{bmatrix}
 $$
 
-### Euler rotation
+### 3.3. Euler rotation
 
 $$
     \begin{array}{c}
@@ -254,7 +258,7 @@ $$
     \end{array}
 $$
 
-#### Rotate around x axis
+#### 3.3.1. Rotate around x axis
 
 $$
     M_{Rx} =
@@ -266,7 +270,7 @@ $$
     \end{bmatrix}
 $$
 
-#### Rotate around y axis
+#### 3.3.2. Rotate around y axis
 
 $$
     M_{Ry} =
@@ -278,7 +282,7 @@ $$
     \end{bmatrix}
 $$
 
-#### Rotate around z axis
+#### 3.3.3. Rotate around z axis
 
 $$
     M_{Rz} =
@@ -290,7 +294,7 @@ $$
     \end{bmatrix}
 $$
 
-### Quaternion
+### 3.4. Quaternion
 
 $$
     i^2=j^2=k^2=ijk=-1
@@ -305,7 +309,7 @@ $$
     ik = -j
 $$
 
-#### Rotate around any axis
+#### 3.4.1. Rotate around any axis
 
 $$
     \begin{split}
@@ -321,7 +325,7 @@ $$
     \end{split}
 $$
 
-#### Multiply
+#### 3.4.2. Multiply
 
 $$
     q_1 = (\vec{u_1}, w_1) = (x_1 i + y_1 j + z_1 k) + w_1
@@ -333,8 +337,8 @@ $$
 
 $$
     \begin{array}{c}
-        q_1 q_2 & = (w_2 \vec{v_1} + w_1 \vec{v_2} + \vec{v_1} \times \vec{v_2},
-        w_1 w_2 - \vec{v_1} \cdot{} \vec{v_2}) \\
+        q_1 q_2 & = (w_2 \vec{u_1} + w_1 \vec{u_2} + \vec{u_1} \times \vec{u_2},
+        \quad w_1 w_2 - \vec{u_1} \cdot{} \vec{u_2}) \\
         & =
         \begin{bmatrix}
             w_1 & -z_1 & y_1 & x_1 \\
@@ -351,14 +355,14 @@ $$
     \end{array}
 $$
 
-#### Dot
+#### 3.4.3. Dot
 
 $$
     q_1 \cdot q_2 = |q_1| |q_2| \cos \theta = \cos \theta =
     x_1 x_2 + y_1 y_2 + z_1 z_2 + w_1 w_2
 $$
 
-#### Interpolation
+#### 3.4.4. Interpolation
 
 $$
     \Delta q = q_2 (q_1^{-1})
@@ -376,7 +380,7 @@ $$
     t \in [0, 1]
 $$
 
-#### Matrix
+#### 3.4.5. Matrix
 
 $$
     M_R =
@@ -398,7 +402,7 @@ $$
     \end{cases}
 $$
 
-### Euler to Quaternion
+### 3.5. Euler to Quaternion
 
 $$
     \begin{cases}
@@ -408,9 +412,9 @@ $$
         c_x = \cos{\frac{\theta_x}{2}} \quad
         c_y = \cos{\frac{\theta_y}{2}} \quad
         c_z = \cos{\frac{\theta_z}{2}} \\
-        q_x = s_x i + c_x \qquad \text{Rotate around x} \\
-        q_y = s_y j + c_y \qquad \text{Rotate around y} \\
-        q_z = s_z k + c_z \qquad \text{Rotate around z} \\
+        q_x = s_x i + c_x \qquad \text{Rotate around x axis} \\
+        q_y = s_y j + c_y \qquad \text{Rotate around y axis} \\
+        q_z = s_z k + c_z \qquad \text{Rotate around z axis} \\
     \end{cases}
 $$
 
@@ -424,7 +428,7 @@ $$
             &+(s_z c_x c_y + sign_3 s_x s_y c_z) k \\ 
             &+(c_x c_y c_z + sign_4 s_x s_y s_z))
         \end{array} \\
-        (a, b, c, sign_1, sign_2, sign_3) \in
+        (a, b, c, sign_1, sign_2, sign_3, sign_4) \in
         \begin{cases}
             (x, y, z, -1,  1, -1,  1) \\
             (x, z, y,  1,  1, -1, -1) \\
@@ -436,7 +440,7 @@ $$
     \end{cases}
 $$
 
-### Look at
+### 3.6. Look at
 
 $$
     \begin{array}{c}
