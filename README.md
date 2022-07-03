@@ -23,6 +23,9 @@
     - [3.4.5. Matrix](#345-matrix)
   - [3.5. Euler to Quaternion](#35-euler-to-quaternion)
   - [3.6. Look at](#36-look-at)
+  - [3.7. Polar Coordinates](#37-polar-coordinates)
+    - [3.7.1. In 2D](#371-in-2d)
+    - [3.7.2. In 3D](#372-in-3d)
 - [4. Render pipeline](#4-render-pipeline)
   - [4.1. Camera](#41-camera)
   - [4.2. Object space to World space](#42-object-space-to-world-space)
@@ -476,6 +479,54 @@ $$
         \vec{nr}.z & \vec{nu}.z & \vec{nf}.z & 0 \\
         0          & 0          & 0          & 1 \\
     \end{bmatrix}
+$$
+
+### 3.7. Polar Coordinates
+
+$$
+    {\rm atan2}(y,x) =
+    \begin{cases}
+        \arctan{\frac{y}{x}}       & \text{if  } x > 0            \\
+        \arctan{\frac{y}{x}} + \pi & \text{if  } x < 0, y \geq 0  \\
+        \arctan{\frac{y}{x}} - \pi & \text{if  } x < 0, y < 0     \\
+        \frac{\pi}{2}              & \text{if  } x = 0, y > 0     \\
+        -\frac{\pi}{2}             & \text{if  } x = 0, y < 0     \\
+        0                          & \text{if  } x = 0, y = 0     \\
+    \end{cases}
+$$
+
+#### 3.7.1. In 2D
+
+$$
+    (x, y)
+    \begin{cases}
+        x = r \cos{\theta} \\
+        y = r \sin{\theta} \\
+    \end{cases}
+    \iff
+    (r, \theta)
+    \begin{cases}
+        r = \sqrt{x^2 + y^2} \\
+        \theta = {\rm atan2}(y,x)
+    \end{cases}
+$$
+
+#### 3.7.2. In 3D
+
+$$
+    (x, y, z)
+    \begin{cases}
+        x = r \sin{\theta} \cos{\phi} \\
+        y = r \sin{\theta} \sin{\phi} \\
+        z = r \cos{\theta}            \\
+    \end{cases}
+    \iff
+    (r, \theta, \phi)
+    \begin{cases}
+        r = \sqrt{x^2 + y^2 + z^2} \\
+        \theta = {\rm atan2}(\sqrt{x^2 + y^2}, z) \\
+        \phi = {\rm atan2}(y, x)
+    \end{cases}
 $$
 
 ## 4. Render pipeline
