@@ -3,47 +3,52 @@
 - [1. Vector](#1-vector)
   - [1.1. Dot](#11-dot)
   - [1.2. Cross](#12-cross)
-  - [1.3. Interpolation](#13-interpolation)
 - [2. Matrix](#2-matrix)
   - [2.1. Identity](#21-identity)
   - [2.2. Transpose](#22-transpose)
   - [2.3. Inverse](#23-inverse)
-- [3. Transform](#3-transform)
-  - [3.1. Translation](#31-translation)
-  - [3.2. Scale](#32-scale)
-  - [3.3. Euler rotation](#33-euler-rotation)
-    - [3.3.1. Rotate around x axis](#331-rotate-around-x-axis)
-    - [3.3.2. Rotate around y axis](#332-rotate-around-y-axis)
-    - [3.3.3. Rotate around z axis](#333-rotate-around-z-axis)
-  - [3.4. Quaternion](#34-quaternion)
-    - [3.4.1. Rotate around any axis](#341-rotate-around-any-axis)
-    - [3.4.2. Multiply](#342-multiply)
-    - [3.4.3. Dot](#343-dot)
-    - [3.4.4. Interpolation](#344-interpolation)
-    - [3.4.5. Matrix](#345-matrix)
-  - [3.5. Euler to Quaternion](#35-euler-to-quaternion)
-  - [3.6. Look at](#36-look-at)
-  - [3.7. Polar Coordinates](#37-polar-coordinates)
-    - [3.7.1. In 2D](#371-in-2d)
-    - [3.7.2. In 3D](#372-in-3d)
-- [4. Render pipeline](#4-render-pipeline)
-  - [4.1. Camera](#41-camera)
-  - [4.2. Object space to World space](#42-object-space-to-world-space)
-  - [4.3. World space to View space](#43-world-space-to-view-space)
-  - [4.4. View space to Clip space (Projection)](#44-view-space-to-clip-space-projection)
-    - [4.4.1. Orthographic](#441-orthographic)
-      - [4.4.1.1. OpenGL](#4411-opengl)
-      - [4.4.1.2. DirectX](#4412-directx)
-    - [4.4.2. Perspective](#442-perspective)
-      - [4.4.2.1. OpenGL](#4421-opengl)
-      - [4.4.2.2. DirectX](#4422-directx)
-  - [4.5. Clip position to Normalized-Device-Coordinates (NDC)](#45-clip-position-to-normalized-device-coordinates-ndc)
-  - [4.6. Vertex in shader](#46-vertex-in-shader)
-    - [4.6.1. Vertex shader output](#461-vertex-shader-output)
-    - [4.6.2. Fragment shader input](#462-fragment-shader-input)
-  - [4.7. Depth](#47-depth)
-    - [4.7.1. Write into depth texture](#471-write-into-depth-texture)
-    - [4.7.2. Read from depth texture](#472-read-from-depth-texture)
+- [3. Curves](#3-curves)
+  - [3.1. Interpolation](#31-interpolation)
+  - [3.2. Bézier curve](#32-bézier-curve)
+    - [3.2.1. Higher-order](#321-higher-order)
+    - [3.2.2. Two-order](#322-two-order)
+    - [3.2.3. Three-order](#323-three-order)
+- [4. Transform](#4-transform)
+  - [4.1. Translation](#41-translation)
+  - [4.2. Scale](#42-scale)
+  - [4.3. Euler rotation](#43-euler-rotation)
+    - [4.3.1. Rotate around x axis](#431-rotate-around-x-axis)
+    - [4.3.2. Rotate around y axis](#432-rotate-around-y-axis)
+    - [4.3.3. Rotate around z axis](#433-rotate-around-z-axis)
+  - [4.4. Quaternion](#44-quaternion)
+    - [4.4.1. Rotate around any axis](#441-rotate-around-any-axis)
+    - [4.4.2. Multiply](#442-multiply)
+    - [4.4.3. Dot](#443-dot)
+    - [4.4.4. Interpolation](#444-interpolation)
+    - [4.4.5. Matrix](#445-matrix)
+  - [4.5. Euler to Quaternion](#45-euler-to-quaternion)
+  - [4.6. Look at](#46-look-at)
+  - [4.7. Polar Coordinates](#47-polar-coordinates)
+    - [4.7.1. In 2D](#471-in-2d)
+    - [4.7.2. In 3D](#472-in-3d)
+- [5. Render pipeline](#5-render-pipeline)
+  - [5.1. Camera](#51-camera)
+  - [5.2. Object space to World space](#52-object-space-to-world-space)
+  - [5.3. World space to View space](#53-world-space-to-view-space)
+  - [5.4. View space to Clip space (Projection)](#54-view-space-to-clip-space-projection)
+    - [5.4.1. Orthographic](#541-orthographic)
+      - [5.4.1.1. OpenGL](#5411-opengl)
+      - [5.4.1.2. DirectX](#5412-directx)
+    - [5.4.2. Perspective](#542-perspective)
+      - [5.4.2.1. OpenGL](#5421-opengl)
+      - [5.4.2.2. DirectX](#5422-directx)
+  - [5.5. Clip position to Normalized-Device-Coordinates (NDC)](#55-clip-position-to-normalized-device-coordinates-ndc)
+  - [5.6. Vertex in shader](#56-vertex-in-shader)
+    - [5.6.1. Vertex shader output](#561-vertex-shader-output)
+    - [5.6.2. Fragment shader input](#562-fragment-shader-input)
+  - [5.7. Depth](#57-depth)
+    - [5.7.1. Write into depth texture](#571-write-into-depth-texture)
+    - [5.7.2. Read from depth texture](#572-read-from-depth-texture)
 
 ## 1. Vector
 
@@ -108,27 +113,6 @@ $$
 $$
     (\lambda\vec{a}) \times \vec{b} =
     \lambda(\vec{a} \times \vec{b}) = \vec{a} \times (\lambda\vec{b})
-$$
-
-### 1.3. Interpolation
-
-$$
-    {\rm Lerp} (\vec{a}, \vec{b}, t) =
-    (1 - t) \vec{a} + t \vec{b}
-    \qquad t \in [0, 1]
-$$
-
-$$
-    {\rm NLerp} (\vec{a}, \vec{b}, t) =
-    {\rm normalize} ({\rm Lerp}(\vec{a}, \vec{b}, t))
-    \qquad t \in [0, 1]
-$$
-
-$$
-    {\rm SLerp} (\vec{a}, \vec{b}, t) =
-    \frac{\sin((1-t)\theta)}{\sin \theta} \vec{a} +
-    \frac{\sin t\theta}{\sin \theta} \vec{b}
-    \qquad t \in [0, 1]
 $$
 
 ## 2. Matrix
@@ -203,7 +187,56 @@ $$
     (M_A M_B)^{-1} = M_B^{-1} M_A^{-1}
 $$
 
-## 3. Transform
+## 3. Curves
+
+### 3.1. Interpolation
+
+$$
+    {\rm Lerp} (\vec{a}, \vec{b}, t) =
+    (1 - t) \vec{a} + t \vec{b}
+    \qquad t \in [0, 1]
+$$
+
+$$
+    {\rm NLerp} (\vec{a}, \vec{b}, t) =
+    {\rm normalize} ({\rm Lerp}(\vec{a}, \vec{b}, t))
+    \qquad t \in [0, 1]
+$$
+
+$$
+    {\rm SLerp} (\vec{a}, \vec{b}, t) =
+    \frac{\sin((1-t)\theta)}{\sin \theta} \vec{a} +
+    \frac{\sin t\theta}{\sin \theta} \vec{b}
+    \qquad t \in [0, 1]
+$$
+
+### 3.2. Bézier curve
+
+#### 3.2.1. Higher-order
+
+$$
+    P(t) = \sum_{i=0}^n{P_i B_{i,n}(t)} \qquad t \in [0, 1]
+$$
+
+$$
+    B_{i,n}(t) = C_n^i t^i (1-t)^{n-i} = \frac{n!}{i!(n-i)!} t^i (1 - t)^{n-i} \qquad
+    i \in \lbrace 0,1, \cdots , n \rbrace
+$$
+
+#### 3.2.2. Two-order
+
+$$
+    P(t) = (1-t)^2 P_0 + 2t(1-t) P_1 + t^2 P_2 \qquad t \in [0, 1]
+$$
+
+
+#### 3.2.3. Three-order
+
+$$
+    P(t) = (1-t)^3 P_0 + 3t(1-t)^2 P_1 + 3t^2(1-t)P_2 + t^3 P_3 \qquad t \in [0, 1]
+$$
+
+## 4. Transform
 
 $$
     \begin{array}{c}
@@ -226,7 +259,7 @@ $$
     M_{TRS}^{-1} = M_S^{-1} M_R^{-1} M_T^{-1}
 $$
 
-### 3.1. Translation
+### 4.1. Translation
 
 $$
     M_T =
@@ -248,7 +281,7 @@ $$
     \end{bmatrix}
 $$
 
-### 3.2. Scale
+### 4.2. Scale
 
 $$
     M_S =
@@ -270,7 +303,7 @@ $$
     \end{bmatrix}
 $$
 
-### 3.3. Euler rotation
+### 4.3. Euler rotation
 
 $$
     \begin{array}{c}
@@ -279,7 +312,7 @@ $$
     \end{array}
 $$
 
-#### 3.3.1. Rotate around x axis
+#### 4.3.1. Rotate around x axis
 
 $$
     M_{Rx} =
@@ -291,7 +324,7 @@ $$
     \end{bmatrix}
 $$
 
-#### 3.3.2. Rotate around y axis
+#### 4.3.2. Rotate around y axis
 
 $$
     M_{Ry} =
@@ -303,7 +336,7 @@ $$
     \end{bmatrix}
 $$
 
-#### 3.3.3. Rotate around z axis
+#### 4.3.3. Rotate around z axis
 
 $$
     M_{Rz} =
@@ -315,7 +348,7 @@ $$
     \end{bmatrix}
 $$
 
-### 3.4. Quaternion
+### 4.4. Quaternion
 
 $$
     i^2=j^2=k^2=ijk=-1
@@ -330,7 +363,7 @@ $$
     ik = -j
 $$
 
-#### 3.4.1. Rotate around any axis
+#### 4.4.1. Rotate around any axis
 
 $$
     \begin{split}
@@ -346,7 +379,7 @@ $$
     \end{split}
 $$
 
-#### 3.4.2. Multiply
+#### 4.4.2. Multiply
 
 $$
     q_1 = (\vec{u_1}, w_1) = (x_1 i + y_1 j + z_1 k) + w_1
@@ -376,14 +409,14 @@ $$
     \end{array}
 $$
 
-#### 3.4.3. Dot
+#### 4.4.3. Dot
 
 $$
     q_1 \cdot q_2 = |q_1| |q_2| \cos \theta = \cos \theta =
     x_1 x_2 + y_1 y_2 + z_1 z_2 + w_1 w_2
 $$
 
-#### 3.4.4. Interpolation
+#### 4.4.4. Interpolation
 
 $$
     \Delta q = q_2 (q_1^{-1})
@@ -394,14 +427,14 @@ $$
     \left.
     \begin{cases}
         {\rm NLerp}(q_1, q_2, t) & \text{if } \Delta q \text{ is small} \\
-                                 & \text{ or }                   \\
+                                 & \text{ or }                          \\
         {\rm SLerp}(q_1, q_2, t) & \text{if } \Delta q \text{ is big}   \\
     \end{cases}
     \right.
     t \in [0, 1]
 $$
 
-#### 3.4.5. Matrix
+#### 4.4.5. Matrix
 
 $$
     M_R =
@@ -423,7 +456,7 @@ $$
     \end{cases}
 $$
 
-### 3.5. Euler to Quaternion
+### 4.5. Euler to Quaternion
 
 $$
     \begin{cases}
@@ -461,7 +494,7 @@ $$
     \end{cases}
 $$
 
-### 3.6. Look at
+### 4.6. Look at
 
 $$
     \begin{array}{c}
@@ -481,7 +514,7 @@ $$
     \end{bmatrix}
 $$
 
-### 3.7. Polar Coordinates
+### 4.7. Polar Coordinates
 
 $$
     {\rm atan2}(y,x) =
@@ -495,7 +528,7 @@ $$
     \end{cases}
 $$
 
-#### 3.7.1. In 2D
+#### 4.7.1. In 2D
 
 $$
     (x, y)
@@ -511,7 +544,7 @@ $$
     \end{cases}
 $$
 
-#### 3.7.2. In 3D
+#### 4.7.2. In 3D
 
 $$
     (x, y, z)
@@ -523,15 +556,15 @@ $$
     \iff
     (r, \theta, \phi)
     \begin{cases}
-        r = \sqrt{x^2 + y^2 + z^2} \\
+        r = \sqrt{x^2 + y^2 + z^2}                \\
         \theta = {\rm atan2}(\sqrt{x^2 + y^2}, z) \\
-        \phi = {\rm atan2}(y, x)
+        \phi = {\rm atan2}(y, x)                  \\
     \end{cases}
 $$
 
-## 4. Render pipeline
+## 5. Render pipeline
 
-### 4.1. Camera
+### 5.1. Camera
 
 $$
     \begin{cases}
@@ -546,7 +579,7 @@ $$
     \end{cases}
 $$
 
-### 4.2. Object space to World space
+### 5.2. Object space to World space
 
 $$
     M_M = {M_{TRS}}_{object} \quad \text{which is object's transform matrix}
@@ -568,7 +601,7 @@ $$
     \end{bmatrix}
 $$
 
-### 4.3. World space to View space
+### 5.3. World space to View space
 
 $$
     M_V =
@@ -599,7 +632,7 @@ $$
     \end{bmatrix}
 $$
 
-### 4.4. View space to Clip space (Projection)
+### 5.4. View space to Clip space (Projection)
 
 In DirectX platform,Unity remap OpenGL z and reverse z depth into DirectX z.
 
@@ -613,9 +646,9 @@ $$
     \end{bmatrix}
 $$
 
-#### 4.4.1. Orthographic
+#### 5.4.1. Orthographic
 
-##### 4.4.1.1. OpenGL
+##### 5.4.1.1. OpenGL
 
 $$
     M_P = {M_{ortho}}_{GL} =
@@ -649,7 +682,7 @@ $$
     \end{bmatrix}
 $$
 
-##### 4.4.1.2. DirectX
+##### 5.4.1.2. DirectX
 
 $$
     \text{Original } {M_{ortho}}_{DX} =
@@ -693,9 +726,9 @@ $$
     \end{bmatrix}
 $$
 
-#### 4.4.2. Perspective
+#### 5.4.2. Perspective
 
-##### 4.4.2.1. OpenGL
+##### 5.4.2.1. OpenGL
 
 $$
     M_P = {M_{persp}}_{GL} =
@@ -729,7 +762,7 @@ $$
     \end{bmatrix}
 $$
 
-##### 4.4.2.2. DirectX
+##### 5.4.2.2. DirectX
 
 $$
     \text{Original } {M_{persp}}_{DX} =
@@ -773,7 +806,7 @@ $$
     \end{bmatrix}
 $$
 
-### 4.5. Clip position to Normalized-Device-Coordinates (NDC)
+### 5.5. Clip position to Normalized-Device-Coordinates (NDC)
 
 $$
     \begin{bmatrix}
@@ -800,12 +833,12 @@ $$
     \end{cases}
 $$
 
-### 4.6. Vertex in shader
+### 5.6. Vertex in shader
 
-#### 4.6.1. Vertex shader output
+#### 5.6.1. Vertex shader output
 
 $$
-    SV\_ POSITION =
+    SV\underline{\quad}POSITION =
     \begin{bmatrix}
         x_{clip}    \\
         y_{clip}    \\
@@ -821,10 +854,10 @@ $$
     \end{bmatrix}
 $$
 
-#### 4.6.2. Fragment shader input
+#### 5.6.2. Fragment shader input
 
 $$
-    SV\_ POSITION =
+    SV\underline{\quad}POSITION =
     \begin{bmatrix}
         (\frac{x_{NDC}}{2} + \frac{1}{2}) \times [\text{output texture width}] + \frac{1}{2}  \\
         (\frac{y_{NDC}}{2} + \frac{1}{2}) \times [\text{output texture height}] + \frac{1}{2} \\
@@ -833,9 +866,9 @@ $$
     \end{bmatrix}
 $$
 
-### 4.7. Depth
+### 5.7. Depth
 
-#### 4.7.1. Write into depth texture
+#### 5.7.1. Write into depth texture
 
 $$
     texture.r =
@@ -846,10 +879,10 @@ $$
     \end{cases}
 $$
 
-#### 4.7.2. Read from depth texture
+#### 5.7.2. Read from depth texture
 
 $$
-    zP =
+    P =
     \begin{cases}
         \text{OpenGL} &
         \begin{cases}
@@ -898,13 +931,13 @@ $$
         \begin{cases}
             01 &
             \begin{cases}
-                \text{from 0} : & \frac{1}{zP.x \times r + zP.y}            \\
-                \text{from n} : & \frac{1}{zP.x + \frac{zP.y}{r}}           \\
+                \text{from 0} : & \frac{1}{P.x \times r + P.y}            \\
+                \text{from n} : & \frac{1}{P.x + \frac{P.y}{r}}           \\
             \end{cases}                                                     \\
             eye &
             \begin{cases}
-                \text{from 0} : & \frac{1}{zP.z \times r + zP.w}            \\
-                \text{from n} : & \frac{1}{zP.z \times r + zP.w} - n        \\
+                \text{from 0} : & \frac{1}{P.z \times r + P.w}            \\
+                \text{from n} : & \frac{1}{P.z \times r + P.w} - n        \\
             \end{cases}                                                     \\
         \end{cases}                                                         \\
     \end{cases}
