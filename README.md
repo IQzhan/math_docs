@@ -3,6 +3,7 @@
 - [1. Vector](#1-vector)
   - [1.1. Dot](#11-dot)
   - [1.2. Cross](#12-cross)
+  - [1.3. Lagrange's Identities](#13-lagranges-identities)
 - [2. Matrix](#2-matrix)
   - [2.1. Identity](#21-identity)
   - [2.2. Transpose](#22-transpose)
@@ -31,24 +32,42 @@
   - [4.7. Polar Coordinates](#47-polar-coordinates)
     - [4.7.1. In 2D](#471-in-2d)
     - [4.7.2. In 3D](#472-in-3d)
-- [5. Render pipeline](#5-render-pipeline)
-  - [5.1. Camera](#51-camera)
-  - [5.2. Object space to World space](#52-object-space-to-world-space)
-  - [5.3. World space to View space](#53-world-space-to-view-space)
-  - [5.4. View space to Clip space (Projection)](#54-view-space-to-clip-space-projection)
-    - [5.4.1. Orthographic](#541-orthographic)
-      - [5.4.1.1. OpenGL](#5411-opengl)
-      - [5.4.1.2. DirectX](#5412-directx)
-    - [5.4.2. Perspective](#542-perspective)
-      - [5.4.2.1. OpenGL](#5421-opengl)
-      - [5.4.2.2. DirectX](#5422-directx)
-  - [5.5. Clip position to Normalized-Device-Coordinates (NDC)](#55-clip-position-to-normalized-device-coordinates-ndc)
-  - [5.6. Vertex in shader](#56-vertex-in-shader)
-    - [5.6.1. Vertex shader output](#561-vertex-shader-output)
-    - [5.6.2. Fragment shader input](#562-fragment-shader-input)
-  - [5.7. Depth](#57-depth)
-    - [5.7.1. Write into depth texture](#571-write-into-depth-texture)
-    - [5.7.2. Read from depth texture](#572-read-from-depth-texture)
+- [5. Collision detection](#5-collision-detection)
+  - [5.1. Line segment](#51-line-segment)
+  - [5.2. Plane](#52-plane)
+  - [5.3. Triangle](#53-triangle)
+  - [5.4. Tetrahedron](#54-tetrahedron)
+  - [5.5. Box](#55-box)
+  - [5.6. Sphere](#56-sphere)
+  - [5.7. Capsule](#57-capsule)
+  - [5.8. Two Line segment](#58-two-line-segment)
+  - [5.9. Plane and Box](#59-plane-and-box)
+  - [5.10. Plane and Sphere](#510-plane-and-sphere)
+  - [5.11. Plane and Capsule](#511-plane-and-capsule)
+  - [5.12. Box and Box](#512-box-and-box)
+  - [5.13. Box and Sphere](#513-box-and-sphere)
+  - [5.14. Box and Capsule](#514-box-and-capsule)
+  - [5.15. Sphere and Sphere](#515-sphere-and-sphere)
+  - [5.16. Sphere and Capsule](#516-sphere-and-capsule)
+  - [5.17. Capsule and Capsule](#517-capsule-and-capsule)
+- [6. Render pipeline](#6-render-pipeline)
+  - [6.1. Camera](#61-camera)
+  - [6.2. Object space to World space](#62-object-space-to-world-space)
+  - [6.3. World space to View space](#63-world-space-to-view-space)
+  - [6.4. View space to Clip space (Projection)](#64-view-space-to-clip-space-projection)
+    - [6.4.1. Orthographic](#641-orthographic)
+      - [6.4.1.1. OpenGL](#6411-opengl)
+      - [6.4.1.2. DirectX](#6412-directx)
+    - [6.4.2. Perspective](#642-perspective)
+      - [6.4.2.1. OpenGL](#6421-opengl)
+      - [6.4.2.2. DirectX](#6422-directx)
+  - [6.5. Clip position to Normalized-Device-Coordinates (NDC)](#65-clip-position-to-normalized-device-coordinates-ndc)
+  - [6.6. Vertex in shader](#66-vertex-in-shader)
+    - [6.6.1. Vertex shader output](#661-vertex-shader-output)
+    - [6.6.2. Fragment shader input](#662-fragment-shader-input)
+  - [6.7. Depth](#67-depth)
+    - [6.7.1. Write into depth texture](#671-write-into-depth-texture)
+    - [6.7.2. Read from depth texture](#672-read-from-depth-texture)
 
 ## 1. Vector
 
@@ -113,6 +132,12 @@ $$
 $$
     (\lambda\vec{a}) \times \vec{b} =
     \lambda(\vec{a} \times \vec{b}) = \vec{a} \times (\lambda\vec{b})
+$$
+
+### 1.3. Lagrange's Identities
+
+$$
+    (\vec{a} \times \vec{b}) \cdot (\vec{c} \times \vec{d}) = (\vec{a} \cdot \vec{c})(\vec{b} \cdot \vec{d}) - (\vec{a} \cdot \vec{d})(\vec{b} \cdot \vec{c})
 $$
 
 ## 2. Matrix
@@ -237,6 +262,8 @@ $$
 $$
 
 ## 4. Transform
+
+    Unity use left hand coordinate system.
 
 $$
     \begin{array}{c}
@@ -562,9 +589,297 @@ $$
     \end{cases}
 $$
 
-## 5. Render pipeline
+## 5. Collision detection
 
-### 5.1. Camera
+$$
+    \begin{split}
+        \text{Any point : } & \vec{v} = (x, y, z) \\
+        \text{Center : } & \vec{o} = (x_0, y_0, z_0) \\
+        \text{Extends : } & \vec{e} = (x_e, y_e, z_e) \quad \vec{e} \geq 0 \\
+        \text{Radius : } & r \quad r > 0 \\
+        \text{Normal of plane : } & \vec{n} = (x_n, y_n, z_n) \\
+        \text{Ray : } &
+        \begin{cases}
+            \vec{o_{ra}} = (x_{ra0}, y_{ra0}, z_{ra0}) & \text{original of ray} \\
+            \vec{v_{ra}} = (x_{vra}, y_{vra}, z_{vra}) & \text{vector of ray} \\
+        \end{cases} \\
+        \text{Signed distance function : } & {\rm distance}(\Phi_1, \Phi_2) =
+        \begin{cases}
+            d & \text{if} & d > 0 & \text{outside the geometry}  \\
+            d & \text{if} & d = 0 & \text{on the geometry}       \\
+            d & \text{if} & d < 0 & \text{inside the geometry}   \\
+        \end{cases} \\
+        \text{Closest Point : } & {\rm closest}(\Phi_1, \Phi_2) \\
+    \end{split}
+$$
+
+### 5.1. Line segment
+
+$$
+    \begin{split}
+        \text{Line : } & \Phi = (\vec{o}, \vec{e}) \\
+        \text{From } \Phi \text{ to } \vec{v} \text{ : } &
+        \begin{cases}
+            \vec{c} & = \vec{o} + \vec{e} \times {\rm clamp}(\frac{\vec{ov} \cdot \vec{e}}{\vec{e} \cdot \vec{e}}, 0, 1) \\
+            {\rm distance}(\Phi, \vec{v}) & = |\vec{cv}| \\
+            {\rm closest}(\Phi, \vec{v}) & = \vec{c} \\
+        \end{cases} \\
+    \end{split}
+$$
+
+### 5.2. Plane
+
+$$
+    \begin{split}
+        \text{Surface : } & \Phi = (\vec{o}, \vec{n}) \\
+        \text{From } \Phi \text{ to } \vec{v} \text{ : } & 
+        \begin{cases}
+            distance(\Phi, \vec{v}) &= \vec{n} \cdot (\vec{v} - \vec{o}) \\
+            &= x_n(x - x_0) + y_n(y - y_0) + z_n(z - z_0) \\
+            &= Ax + By + Cz + D \\
+            {\rm closest}(\Phi, \vec{v}) &= \vec{v} - distance(\Phi, \vec{v}) \times \vec{n} \\
+        \end{cases}
+    \end{split}
+$$
+
+### 5.3. Triangle
+
+$$
+    \begin{split}
+        \text{Surface : } & \Phi = (\vec{a}, \vec{b}, \vec{c}) \\
+        \text{From } \Phi \text{ to } \vec{v} \text{ : } &
+        \begin{cases}
+            \vec{n} = {\rm normalize}(\vec{ab} \times \vec{ac}) \\
+            d_{plane} = {\rm distance}(\Phi_{plane}, \vec{v}) \\
+            \vec{p_{plane}} = {\rm closest}(\Phi_{plane}, \vec{v}) \\
+            s = {\rm all}({\rm sign}(\vec{ab} \times \vec{ap_{plane}}) \equiv {\rm sign}(\vec{bc} \times \vec{bp_{plane}}) \equiv {\rm sign}(\vec{ca} \times \vec{cp_{plane}})) \\
+            \vec{p_{ab}} = {\rm closest}(\Phi_{ab}, \vec{v}) \quad d_{ab} = |\vec{p_{ab} v}| \\
+            \vec{p_{bc}} = {\rm closest}(\Phi_{bc}, \vec{v}) \quad d_{bc} = |\vec{p_{bc} v}| \\
+            \vec{p_{ca}} = {\rm closest}(\Phi_{ca}, \vec{v}) \quad d_{ca} = |\vec{p_{ca} v}| \\
+            {\rm distance}(\Phi, \vec{v}) = s \times d_{plane} + (1 - s) \times {\rm sign}(d_{plane}) \times \min(d_{ab}, d_{bc}, d_{ca}) \\
+            {\rm closest}(\Phi, \vec{v}) = s \times \vec{p_{plane}} + (1-s) \times {\rm closest}(\lbrace \vec{p_{ab}}, \vec{p_{bc}}, \vec{p_{ca}} \rbrace, \vec{v}) \\
+        \end{cases} \\
+    \end{split}
+$$
+
+### 5.4. Tetrahedron
+
+    Collision with 4 triangles.
+
+### 5.5. Box
+
+$$
+    \begin{split}
+        \text{Surface : } & \Phi = (\vec{o}, \vec{e}) \\
+        \text{From } \Phi \text{ to } \vec{v} \text{ : } &
+        \begin{cases}
+            \vec{c} &= {\rm abs}(\vec{ov}) - \vec{e} \\
+            {\rm distance}(\Phi, \vec{v}) &= |\max(\vec{c}, 0)| + \min(\max(\max(\vec{c}.x, \vec{c}.y), \vec{c}.z), 0) \\
+            {\rm closest}(\Phi, \vec{v}) &= \vec{o} + {\rm clamp}(\vec{ov}, -\vec{e}, \vec{e}) \\
+        \end{cases} \\
+    \end{split}
+$$
+
+### 5.6. Sphere
+
+$$
+    \begin{split}
+        \text{Surface : } & \Phi = (\vec{o}, r) \\
+        \text{From } \Phi \text{ to } \vec{v} \text{ : } &
+        \begin{cases}
+            {\rm distance}(\Phi, \vec{v}) &= |\vec{ov}| - r \\
+            {\rm closest}(\Phi, \vec{v}) &= \vec{o} + {\rm normalize}(\vec{ov}) \times r \\
+        \end{cases}
+    \end{split}
+$$
+
+### 5.7. Capsule
+
+$$
+    \begin{split}
+        \text{Surface : } & \Phi = (\vec{o}, \vec{e}, r) \\
+        \text{From } \Phi \text{ to } \vec{v} \text{ : } &
+        \begin{cases}
+            \vec{c} & = \vec{o} + \vec{e} \times {\rm clamp}(\frac{\vec{ov} \cdot \vec{e}}{\vec{e} \cdot \vec{e}}, -1, 1) \\
+            {\rm distance}(\Phi, \vec{v}) & = |\vec{cv}| - r \\
+            {\rm closest}(\Phi, \vec{v}) &= \vec{c} + {\rm normalize}(\vec{cv}) \times r \\
+        \end{cases} \\
+    \end{split}
+$$
+
+### 5.8. Two Line segment
+
+$$
+    \begin{split}
+        \text{From } \Phi \text{ to } \Phi \text{ : } &
+        \begin{cases}
+            L_1(t_1) = o_1 + t_1 \times e_1 \quad (0 \leq t_1 \leq 1) \\
+            L_2(t_2) = o_2 + t_2 \times e_2 \quad (0 \leq t_2 \leq 1) \\
+            L_d = L_1(t_1) - L_2(t_2) \\
+            L_d \cdot e_1 = 0 \quad L_d \cdot e_2 = 0 \\
+            t_1 = \frac{bt_2 - c}{a} \quad t_2 = \frac{bt_1 + f}{e} \\
+            t_1 = \frac{bf - ce}{d} \quad t_2 = \frac{af - bc}{d} \\
+            a = e_1 \cdot e_1 \quad b = e_1 \cdot e_2 \quad c = e_1 \cdot o_2o_1 \\
+            d = ae - b^2 \quad e = e_2 \cdot e_2 \quad f = e_2 \cdot o_2o_1 \\
+            d \rArr (|e_1| |e_2| \sin(\theta))^2 \geq 0 \\
+            t_1 = \begin{cases}
+                0 & \text{if } d = 0 \text{ parallel} \\
+                {\rm clamp}(\frac{bf-ce}{d}, 0, 1) & \text{if } d > 0 \text{ not parallel} \\
+            \end{cases} \\
+            t_2 = {\rm clamp}(\frac{bt_1+f}{e}) \\
+            t_1 = {\rm clamp}(\frac{bt_2-c}{a}) \\
+            {\rm distance}(\Phi, \Phi) = |L_d| \\
+            {\rm closest}(\Phi, \Phi)_{L1} = L_1(t_1) \\
+            {\rm closest}(\Phi, \Phi)_{L2} = L_2(t_2) \\
+        \end{cases}
+    \end{split}
+$$
+
+### 5.9. Plane and Box
+
+$$
+    \begin{split}
+        \text{From } \Phi \text{ to } \Phi \text{ : } &
+        \begin{cases}
+            \vec{b_{min}} &= \vec{o_{box}} - \vec{e_{box}} \\
+            \vec{b_{max}} &= \vec{o_{box}} + \vec{e_{box}} \\
+            s &= \vec{n_{plane}} \geq 0 \\
+            \vec{v_{back}} &= s \times \vec{b_{min}} + (1 - s) \times \vec{b_{max}} \\
+            \vec{v_{front}} &= s \times \vec{b_{max}} + (1 - s) \times \vec{b_{min}} \\
+            d_{min} &= d(\Phi_{plane}, \vec{v_{back}}) \\
+            d_{max} &= d(\Phi_{plane}, \vec{v_{front}}) \\
+            {\rm distance}(\Phi, \Phi) &=
+            \begin{cases}
+                d_{min} & \text{if} & d_{min} > 0 & \text{disjoint} \\
+                d_{min} & \text{if} & d_{min} \leq 0 \And d_{max} \geq 0 & \text{intersect} \\
+                d_{max} & \text{if} & d_{max} < 0 & \text{contains} \\
+            \end{cases} \\
+            {\rm closest}(\Phi, \Phi)_{box} &= \vec{v_{back}} \\
+            {\rm closest}(\Phi, \Phi)_{plane} &= \vec{v_{back}} - d_{min} \times \vec{n_{plane}} \\
+        \end{cases} \\
+    \end{split}
+$$
+
+### 5.10. Plane and Sphere
+
+$$
+    \begin{split}
+        \text{From } \Phi \text{ to } \Phi \text{ : } &
+        \begin{cases}
+            d_o &= {\rm distance}(\Phi_{plane}, \vec{o_{sphere}}) \\
+            d_{min} &= d_o - r_{sphere} \\
+            d_{max} &= d_o + r_{sphere} \\
+            {\rm distance}(\Phi, \Phi) &=
+            \begin{cases}
+                d_{min} & \text{if} & d_{min} > 0 & \text{disjoint} \\
+                d_{min} & \text{if} & d_{min} \leq 0 \And d_{max} \geq 0 & \text{intersect} \\
+                d_{max} & \text{if} & d_{max} < 0 & \text{contains} \\
+            \end{cases} \\
+            {\rm closest}(\Phi, \Phi)_{sphere} &= \vec{o_{sphere}} - r_{sphere} \times \vec{n_{plane}} \\
+            {\rm closest}(\Phi, \Phi)_{plane} &= \vec{o_{sphere}} - {\rm distance}(\Phi_{plane}, \vec{o_{sphere}}) \times \vec{n_{plane}} \\
+        \end{cases} \\
+    \end{split}
+$$
+
+### 5.11. Plane and Capsule
+
+$$
+    \begin{split}
+        \text{From } \Phi \text{ to } \Phi \text{ : } &
+        \begin{cases}
+            \vec{a} &= \vec{o_{capsule}} + \vec{e_{capsule}} \\
+            \vec{b} &= \vec{o_{capsule}} - \vec{e_{capsule}} \\
+            d_{a} &= {\rm distance}(\Phi_{plane}, \vec{a}) \\
+            d_{b} &= {\rm distance}(\Phi_{plane}, \vec{b}) \\
+            s &= d_{a} \geq d_{b} \\
+            \vec{v_a} &= s \times \vec{b} + (1 - s) \times \vec{a} \\
+            \vec{v_b} &= s \times \vec{a} + (1 - s) \times \vec{b} \\
+            \vec{v_{back}} &= \vec{v_a} - \vec{n_{plane}} \times r_{capsule} \\
+            \vec{v_{front}} &= \vec{v_b} + \vec{n_{plane}} \times r_{capsule} \\
+            d_{min} &= s \times d_{b} + (1 - s) \times d_{a} - r_{capsule} \\
+            d_{max} &= s \times d_{a} + (1 - s) \times d_{b} + r_{capsule} \\
+            {\rm distance}(\Phi, \Phi) &=
+            \begin{cases}
+                d_{min} & \text{if} & d_{min} > 0 & \text{disjoint} \\
+                d_{min} & \text{if} & d_{min} \leq 0 \And d_{max} \geq 0 & \text{intersect} \\
+                d_{max} & \text{if} & d_{max} < 0 & \text{contains} \\
+            \end{cases} \\
+            {\rm closest}(\Phi, \Phi)_{capsule} &= \vec{v_{back}} \\
+            {\rm closest}(\Phi, \Phi)_{plane} &= \vec{v_{back}} - d_{min} \times \vec{n_{plane}} \\
+        \end{cases}\\
+    \end{split}
+$$
+
+### 5.12. Box and Box
+
+$$
+    \text{AABB}
+    \begin{cases}
+        \vec{a_{max}} = \vec{o_a} + \vec{e_a} \\
+        \vec{a_{min}} = \vec{o_a} - \vec{e_a} \\
+        \vec{b_{max}} = \vec{o_b} + \vec{e_b} \\
+        \vec{b_{min}} = \vec{o_b} - \vec{e_b} \\
+        \text{intersect} = {\rm not}({\rm any}(\vec{a_{min}} > \vec{b_{max}} \text{  or  } \vec{b_{min}} > \vec{a_{max}})) \\
+    \end{cases}
+$$
+
+$$
+    \text{AABB and OBB}
+    \begin{cases}
+    \end{cases}
+$$
+
+### 5.13. Box and Sphere
+
+$$
+    \begin{split}
+        \text{From } \Phi \text{ to } \Phi \text{ : } &
+        \begin{cases}
+            \vec{c} &= {\rm abs}(\vec{o_{box}o_{sphere}}) - \vec{e_{box}} \\
+            d_0 &= |\max(\vec{c}, 0)| + \min(\max(\max(\vec{c}.x, \vec{c}.y), \vec{c}.z), 0) \\
+            {\rm distance}(\Phi, \Phi) &= d_0 - r_{sphere} \\
+            {\rm closest}(\Phi, \Phi)_{box} &= \vec{o_{box}} + {\rm clamp}(\vec{o_{box}o_{sphere}}, -\vec{e_{box}}, \vec{e_{box}}) \\
+            {\rm closest}(\Phi, \Phi)_{sphere} &= {\rm normalize}(\vec{o_{sphere}p_{box}}) \times r_{sphere}
+        \end{cases} \\
+    \end{split}
+$$
+
+### 5.14. Box and Capsule
+
+### 5.15. Sphere and Sphere
+
+$$
+    \begin{split}
+        \text{From } \Phi \text{ to } \Phi \text{ : } &
+        \begin{cases}
+            {\rm distance}(\Phi, \Phi) &= |\vec{o_a o_b}| - r_a - r_b \\
+            {\rm closest}(\Phi, \Phi)_a &= \vec{o_a} + {\rm normalize}(\vec{o_a o_b}) \times r_a \\
+            {\rm closest}(\Phi, \Phi)_b &= \vec{o_b} + {\rm normalize}(\vec{o_b o_a}) \times r_b \\
+        \end{cases} \\
+    \end{split}
+$$
+
+### 5.16. Sphere and Capsule
+
+$$
+    \begin{split}
+        \text{From } \Phi \text{ to } \Phi \text{ : } &
+        \begin{cases}
+            \vec{c} & = \vec{o_{c}} + \vec{e_{c}} \times {\rm clamp}(\frac{\vec{o_{c}o_{s}} \cdot \vec{e_{c}}}{\vec{e_{c}} \cdot \vec{e_{c}}}, -1, 1) \\
+            {\rm distance}(\Phi, \Phi) & = |\vec{co_s}| - r_c - r_s \\
+            {\rm closest}(\Phi, \Phi)_{sphere} &= \vec{o_s} + {\rm normalize}(\vec{o_s c}) \times r_s \\
+            {\rm closest}(\Phi, \Phi)_{capsule} &= \vec{c} + {\rm normalize}(\vec{c o_s}) \times r_c \\
+        \end{cases} \\
+    \end{split}
+$$
+
+### 5.17. Capsule and Capsule
+
+    Same as two line segment.
+
+## 6. Render pipeline
+
+### 6.1. Camera
 
 $$
     \begin{cases}
@@ -579,7 +894,7 @@ $$
     \end{cases}
 $$
 
-### 5.2. Object space to World space
+### 6.2. Object space to World space
 
 $$
     M_M = {M_{TRS}}_{object} \quad \text{which is object's transform matrix}
@@ -601,7 +916,7 @@ $$
     \end{bmatrix}
 $$
 
-### 5.3. World space to View space
+### 6.3. World space to View space
 
 $$
     M_V =
@@ -632,9 +947,9 @@ $$
     \end{bmatrix}
 $$
 
-### 5.4. View space to Clip space (Projection)
+### 6.4. View space to Clip space (Projection)
 
-In DirectX platform,Unity remap OpenGL z and reverse z depth into DirectX z.
+    In DirectX platform,Unity remap OpenGL z and reverse z depth into DirectX z.
 
 $$
     M_{GL2DX} =
@@ -646,9 +961,9 @@ $$
     \end{bmatrix}
 $$
 
-#### 5.4.1. Orthographic
+#### 6.4.1. Orthographic
 
-##### 5.4.1.1. OpenGL
+##### 6.4.1.1. OpenGL
 
 $$
     M_P = {M_{ortho}}_{GL} =
@@ -682,7 +997,7 @@ $$
     \end{bmatrix}
 $$
 
-##### 5.4.1.2. DirectX
+##### 6.4.1.2. DirectX
 
 $$
     \text{Original } {M_{ortho}}_{DX} =
@@ -726,9 +1041,9 @@ $$
     \end{bmatrix}
 $$
 
-#### 5.4.2. Perspective
+#### 6.4.2. Perspective
 
-##### 5.4.2.1. OpenGL
+##### 6.4.2.1. OpenGL
 
 $$
     M_P = {M_{persp}}_{GL} =
@@ -762,7 +1077,7 @@ $$
     \end{bmatrix}
 $$
 
-##### 5.4.2.2. DirectX
+##### 6.4.2.2. DirectX
 
 $$
     \text{Original } {M_{persp}}_{DX} =
@@ -806,7 +1121,7 @@ $$
     \end{bmatrix}
 $$
 
-### 5.5. Clip position to Normalized-Device-Coordinates (NDC)
+### 6.5. Clip position to Normalized-Device-Coordinates (NDC)
 
 $$
     \begin{bmatrix}
@@ -833,9 +1148,9 @@ $$
     \end{cases}
 $$
 
-### 5.6. Vertex in shader
+### 6.6. Vertex in shader
 
-#### 5.6.1. Vertex shader output
+#### 6.6.1. Vertex shader output
 
 $$
     SV\underline{\quad}POSITION =
@@ -854,7 +1169,7 @@ $$
     \end{bmatrix}
 $$
 
-#### 5.6.2. Fragment shader input
+#### 6.6.2. Fragment shader input
 
 $$
     SV\underline{\quad}POSITION =
@@ -866,9 +1181,9 @@ $$
     \end{bmatrix}
 $$
 
-### 5.7. Depth
+### 6.7. Depth
 
-#### 5.7.1. Write into depth texture
+#### 6.7.1. Write into depth texture
 
 $$
     texture.r =
@@ -879,7 +1194,7 @@ $$
     \end{cases}
 $$
 
-#### 5.7.2. Read from depth texture
+#### 6.7.2. Read from depth texture
 
 $$
     P =
